@@ -8,7 +8,8 @@ interface DictionaryResponse {
 
 const system_prompt = ` The user will provide a sentence and a word from that sentence.
         Your task is to provide a clear definition of the word in that context in a few words, its romanized form (if applicable), and the language of the word.
-        For the romanization, Use Hepburn romanization for Japanese, Revised Romanization for Korean, and Pinyin with correct intonation for Chinese
+        For the romanization, Use Hepburn romanization for Japanese, Revised Romanization for Korean, and Pinyin with correct intonation for Chinese.
+        For 儿化音 (érhuà) words like "小孩儿", use "r" without tone mark as romanized instead of usual "ér".
 
         ALWAYS respond in this EXACT JSON format:
         {
