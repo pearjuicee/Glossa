@@ -1,0 +1,29 @@
+# Ignore OS and IDE files at the root
+.DS_Store
+Thumbs.db
+*.suo
+*.sw?
+*.sln
+
+# Ignore environment files at the root
+.env
+
+# Ignore log files at the root
+*.log
+
+# Ignore root-level node_modules and dist if they ever exist
+node_modules/
+dist/
+
+# Ignore editor/project config folders at the root
+.vscode/
+.idea/
+
+# Ignore npm/yarn/pnpm/lerna debug logs at the root
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Ignore any other build artifacts at the root
+build/

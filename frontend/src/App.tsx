@@ -1,11 +1,11 @@
 import './App.css'
-import { SentenceInput } from './components/SentenceInput'
+import Home from './pages/Home'
 
 function App() {
   return (
     <>
       <p>hello world Glossa!</p>
-      <SentenceInput />
+      <Home />
     </>
   )
 }
