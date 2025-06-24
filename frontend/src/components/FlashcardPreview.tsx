@@ -49,7 +49,7 @@ const FlashcardPreview: React.FC<FlashcardPreviewProps> = ({
         <>
           <button
             onClick={() => setIsEditing(true)}
-            className="absolute top-2 right-2 p-1 text-gray-600 hover:text-black"
+            className="absolute top-2 right-2 p-1 text-gray-600 hover:text-black cursor-pointer"
             aria-label="Edit"
           >
             <Pencil size={18} />
