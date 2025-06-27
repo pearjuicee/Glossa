@@ -1,13 +1,15 @@
 export type DictionaryResponse = {
-    response: {
-        definition: string;
-        romanized: string;
-        language?: string;
-    }
-}
+  sentence: string;
+  targetWord: string;
+  response: {
+    definition: string;
+    romanized: string;
+    language?: string;
+  };
+};
 
 export type Token = {
-    segment: string;
-    index: number;
-    isSelected: boolean;
-}
+  segment: string;
+  index: number;
+  isSelected: boolean;
+};

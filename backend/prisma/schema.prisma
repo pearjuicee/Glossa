@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model anki_sync_log {
+  id            Int         @id @default(autoincrement())
+  flashcard_id  String?     @db.Uuid
+  sync_time     DateTime?   @default(now()) @db.Timestamp(6)
+  status        String      @db.VarChar(20)
+  error_message String?
+  flashcards    flashcards? @relation(fields: [flashcard_id], references: [flashcard_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model flashcards {
+  flashcard_id  String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id       String?         @db.Uuid
+  sentence      String
+  target_word   String
+  definition    String
+  romanization  String?
+  language      String?
+  added_to_anki Boolean?        @default(false)
+  created_at    DateTime?       @default(now()) @db.Timestamp(6)
+  modified_at   DateTime?       @default(now()) @db.Timestamp(6)
+  anki_sync_log anki_sync_log[]
+  users         users?          @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model users {
+  user_id       String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email         String       @unique @db.VarChar(255)
+  password_hash String       @db.VarChar(255)
+  created_at    DateTime?    @default(now()) @db.Timestamp(6)
+  flashcards    flashcards[]
+}

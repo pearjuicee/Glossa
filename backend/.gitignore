@@ -13,3 +13,4 @@ logs/
 
 # IDE settings
 .vscode/
+/generated/prisma
