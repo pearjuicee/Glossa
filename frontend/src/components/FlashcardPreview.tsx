@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import type { DictionaryResponse } from "../models/DictionaryResponse";
 import FlashcardPreviewEdit from "./FlashcardPreviewEdit";
 import { Pencil } from "lucide-react";
+import SuccessMessage from "./SuccessMessage";
+import ErrorMessage from "./ErrorMessage";
 
 type FlashcardPreviewProps = {
   isLoading: boolean;
@@ -17,7 +19,8 @@ const FlashcardPreview: React.FC<FlashcardPreviewProps> = ({
     null
   );
   const [isSavingToDB, setIsSavingToDB] = useState(false);
-  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     if (details) {
@@ -52,10 +55,9 @@ const FlashcardPreview: React.FC<FlashcardPreviewProps> = ({
         throw new Error("Failed to save flashcard");
       }
 
-      setSaveMessage("✅ Flashcard saved successfully!");
+      setSaveSuccess("Flashcard saved successfully!");
     } catch (error) {
-      console.error("Error saving flashcard:", error);
-      setSaveMessage("❌ Failed to save flashcard");
+      setSaveError("Failed to save flashcard");
     } finally {
       setIsSavingToDB(false);
     }
@@ -105,12 +107,23 @@ const FlashcardPreview: React.FC<FlashcardPreviewProps> = ({
           >
             {isSavingToDB ? "Saving..." : "Save Flashcard"}
           </button>
-          {saveMessage && (
-            <div className="mt-2 text-green-600 font-semibold">
-              {saveMessage}
-            </div>
-          )}
         </>
+      )}
+
+      {saveSuccess && (
+        <SuccessMessage
+          message={saveSuccess}
+          onClose={() => setSaveSuccess(null)}
+          duration={3000}
+        />
+      )}
+
+      {saveError && (
+        <ErrorMessage
+          message={saveError}
+          onClose={() => setSaveError(null)}
+          duration={3000}
+        />
       )}
     </div>
   );

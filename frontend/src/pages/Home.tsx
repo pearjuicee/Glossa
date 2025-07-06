@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import SentenceInput from "../components/SentenceInput";
 import ProcessButton from "../components/ProcessButton";
 import TokenDisplay from "../components/TokenDisplay";
@@ -26,6 +26,14 @@ export const Home: React.FC = () => {
     []
   );
 
+  useEffect(() => {
+    if (tokens.length > 0) {
+      setSelectedToken(null);
+      setSegmentDetails(null);
+      setError(null);
+    }
+  }, [tokens]);
+
   const handleSegment = () => {
     const segments = segmenter.segment(sentence);
     const segmentArray = Array.from(segments)
@@ -37,9 +45,6 @@ export const Home: React.FC = () => {
       }));
 
     setTokens(segmentArray);
-    setSelectedToken(null);
-    setSegmentDetails(null);
-    setError(null);
   };
 
   const handleTokenSelect = async (token: Token) => {
@@ -98,7 +103,9 @@ export const Home: React.FC = () => {
     <div className="p-4">
       <SentenceInput value={sentence} onChange={setSentence} />
       <ProcessButton onClick={handleSegment} disabled={!sentence.trim()} />
-      {error && <ErrorMessage message={error.message} />}
+      {error && (
+        <ErrorMessage message={error.message} onClose={() => setError(null)} />
+      )}
 
       {tokens.length > 0 && (
         <>
@@ -107,7 +114,9 @@ export const Home: React.FC = () => {
             selected={selectedToken}
             onSelect={handleTokenSelect}
           />
-          <FlashcardPreview isLoading={isLoading} details={segmentDetails} />
+          {(segmentDetails || isLoading) && (
+            <FlashcardPreview isLoading={isLoading} details={segmentDetails} />
+          )}
         </>
       )}
     </div>
