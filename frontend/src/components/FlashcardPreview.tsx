@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import type { DictionaryResponse } from "../models/DictionaryResponse";
 import FlashcardPreviewEdit from "./FlashcardPreviewEdit";
 import { Pencil } from "lucide-react";
+import SuccessMessage from "./SuccessMessage";
+import ErrorMessage from "./ErrorMessage";
 
 type FlashcardPreviewProps = {
   isLoading: boolean;
@@ -16,12 +18,50 @@ const FlashcardPreview: React.FC<FlashcardPreviewProps> = ({
   const [localDetails, setLocalDetails] = useState<DictionaryResponse | null>(
     null
   );
+  const [isSavingToDB, setIsSavingToDB] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     if (details) {
       setLocalDetails(details);
     }
   }, [details]);
+
+  const handleFlashcardSaveToDB = async () => {
+    if (!localDetails) return;
+
+    setIsSavingToDB(true);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/flashcards`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sentence: localDetails.sentence,
+            target_word: localDetails.targetWord,
+            definition: localDetails.response.definition,
+            romanization: localDetails.response.romanized,
+            language: localDetails.response.language,
+            added_to_anki: false, // Assuming this is false by default
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to save flashcard");
+      }
+
+      setSaveSuccess("Flashcard saved successfully!");
+    } catch (error) {
+      setSaveError("Failed to save flashcard");
+    } finally {
+      setIsSavingToDB(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -60,7 +100,30 @@ const FlashcardPreview: React.FC<FlashcardPreviewProps> = ({
             <strong>Romanized:</strong> <p>{localDetails.response.romanized}</p>
             <strong>Language:</strong> <p>{localDetails.response.language}</p>
           </div>
+          <button
+            onClick={handleFlashcardSaveToDB}
+            className="mt-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
+            disabled={isSavingToDB}
+          >
+            {isSavingToDB ? "Saving..." : "Save Flashcard"}
+          </button>
         </>
+      )}
+
+      {saveSuccess && (
+        <SuccessMessage
+          message={saveSuccess}
+          onClose={() => setSaveSuccess(null)}
+          duration={3000}
+        />
+      )}
+
+      {saveError && (
+        <ErrorMessage
+          message={saveError}
+          onClose={() => setSaveError(null)}
+          duration={3000}
+        />
       )}
     </div>
   );
