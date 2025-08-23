@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { handleCreateFlashcard } from "../controllers/flashcardController";
+import { supabaseAuth } from "../middleware/supabaseAuth";
 
 const router = Router();
 
-router.post("/", handleCreateFlashcard);
+router.post("/", supabaseAuth, handleCreateFlashcard);
 
 export default router;

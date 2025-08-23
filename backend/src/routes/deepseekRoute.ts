@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { handleDefine } from "../controllers/deepSeekController";
+import { supabaseAuth } from "../middleware/supabaseAuth";
 
 const deepseekRouter = Router();
 
-deepseekRouter.post("/define", handleDefine);
+// Protect the /define route with supabaseAuth middleware
+deepseekRouter.post("/define", supabaseAuth, handleDefine);
 
 export default deepseekRouter;
