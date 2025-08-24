@@ -13,7 +13,6 @@ export const handleCreateUser = async (req: Request, res: Response) => {
     const user = await findOrCreateUser(supabase_uid);
 
     res.status(200).json({
-        message: 'User profile processed successfully.',
         user: {
           user_id: user.user_id,
           supabase_uid: user.supabase_uid

@@ -4,6 +4,6 @@ import { supabaseAuth } from "../middleware/supabaseAuth";
 
 const userRouter = Router();
 
-userRouter.post("/", handleCreateUser);
+userRouter.post("/createUser", supabaseAuth, handleCreateUser);
 
 export default userRouter;

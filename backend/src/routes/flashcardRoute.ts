@@ -4,6 +4,6 @@ import { supabaseAuth } from "../middleware/supabaseAuth";
 
 const router = Router();
 
-router.post("/", supabaseAuth, handleCreateFlashcard);
+router.post("/createFlashcard", supabaseAuth, handleCreateFlashcard);
 
 export default router;

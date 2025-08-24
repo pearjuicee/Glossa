@@ -51,8 +51,8 @@ const FlashcardPreviewEdit: React.FC<FlashcardPreviewEditProps> = ({
       <div className="mb-2">
         <label className="font-semibold">Language:</label>
         <textarea
-          value={editedDetails.response.romanized}
-          onChange={(e) => handleFieldChange("romanized", e.target.value)}
+          value={editedDetails.response.language}
+          onChange={(e) => handleFieldChange("language", e.target.value)}
           className="w-full border px-2 py-1 mt-1 rounded"
         />
       </div>

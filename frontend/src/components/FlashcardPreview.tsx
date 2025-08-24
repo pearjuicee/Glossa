@@ -4,6 +4,7 @@ import FlashcardPreviewEdit from "./FlashcardPreviewEdit";
 import { Pencil } from "lucide-react";
 import SuccessMessage from "./SuccessMessage";
 import ErrorMessage from "./ErrorMessage";
+import { supabase } from "../lib/supabaseClient";
 
 type FlashcardPreviewProps = {
   isLoading: boolean;
@@ -33,12 +34,14 @@ const FlashcardPreview: React.FC<FlashcardPreviewProps> = ({
 
     setIsSavingToDB(true);
     try {
+      const accessToken = (await supabase.auth.getSession()).data.session?.access_token;
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/flashcards`,
+        `${import.meta.env.VITE_API_BASE_URL}/flashcards/createFlashcard`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization" : `Bearer ${accessToken}`
           },
           body: JSON.stringify({
             sentence: localDetails.sentence,
