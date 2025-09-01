@@ -17,11 +17,11 @@ Language learning tool to make sentence mining easier and faster. Turn any sente
 
 ## 🧱 Tech Stack
 
-**Frontend**: React + TypeScript, React Router, Tailwind CSS
-**Backend**: Express (Node), Prisma ORM, PostgreSQL
-**Auth**: Supabase Auth
-**Integrations**: Anki‑Connect (local), DeepSeek (definitions)
-**Dev Tooling**: ESLint + Prettier, npm, Docker (optional)
+* **Frontend**: React + TypeScript, Tailwind CSS
+* **Backend**: Express (Node), Prisma ORM, PostgreSQL
+* **Auth**: Supabase Auth
+* **Integrations**: Anki‑Connect (local), DeepSeek (definitions), Intl.Segmenter
+* **Dev Tooling**: ESLint + Prettier, npm, Docker (optional)
 
 ---
 
