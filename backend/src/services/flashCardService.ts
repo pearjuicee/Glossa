@@ -14,3 +14,22 @@ export const createFlashcard = async (data: {
   });
   return flashcard;
 };
+
+export const getFlashcardsByUser = async (user_id: string) => {
+  const flashcards = await prisma.flashcards.findMany({
+    where: { user_id: user_id },
+    orderBy: { created_at: "desc" },
+  });
+  return flashcards;
+}
+
+export const deleteFlashcardsByIds = async (user_id: string, flashcard_ids: string[]) => {
+  await prisma.flashcards.deleteMany({
+    where: {
+      user_id: user_id,
+      flashcard_id: {
+        in: flashcard_ids,
+      },
+    },
+  });
+}
