@@ -14,8 +14,8 @@ window.addEventListener("message", async (event) => {
       {
         source: "GLOSSA_EXTENSION",
         requestId: msg.requestId,
-        ok: response?.ok ?? response?.success ?? null,
-        result: response?.result ?? response?.data ?? null,
+        ok: response?.ok ?? null,
+        result: response?.data ?? null,
         error: response?.error || null,
       },
       event.origin
