@@ -5,6 +5,7 @@ import { Pencil } from "lucide-react";
 import SuccessMessage from "./SuccessMessage";
 import ErrorMessage from "./ErrorMessage";
 import { supabase } from "../lib/supabaseClient";
+import { checkAnkiConnection } from "../lib/ankiBridge";
 
 type FlashcardPreviewProps = {
   isLoading: boolean;
@@ -22,11 +23,20 @@ const FlashcardPreview: React.FC<FlashcardPreviewProps> = ({
   const [isSavingToDB, setIsSavingToDB] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [isAnkiConnected, setIsAnkiConnected] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (details) {
       setLocalDetails(details);
     }
+    (async () => {
+      try {
+        await checkAnkiConnection();
+        setIsAnkiConnected(true);
+      } catch (error) {
+        setIsAnkiConnected(false);
+      }
+    })();
   }, [details]);
 
   const handleFlashcardSaveToDB = async () => {
@@ -34,14 +44,15 @@ const FlashcardPreview: React.FC<FlashcardPreviewProps> = ({
 
     setIsSavingToDB(true);
     try {
-      const accessToken = (await supabase.auth.getSession()).data.session?.access_token;
+      const accessToken = (await supabase.auth.getSession()).data.session
+        ?.access_token;
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/flashcards/createFlashcard`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization" : `Bearer ${accessToken}`
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify({
             sentence: localDetails.sentence,
@@ -109,6 +120,13 @@ const FlashcardPreview: React.FC<FlashcardPreviewProps> = ({
             disabled={isSavingToDB}
           >
             {isSavingToDB ? "Saving..." : "Save Flashcard"}
+          </button>
+          <button
+            onClick={async () => {}}
+            className="mt-2 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer"
+            disabled={!isAnkiConnected}
+          >
+            {isAnkiConnected ? "Save to Anki" : "Anki Not Connected"}
           </button>
         </>
       )}
