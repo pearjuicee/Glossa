@@ -5,11 +5,20 @@ import { Pencil } from "lucide-react";
 import SuccessMessage from "./SuccessMessage";
 import ErrorMessage from "./ErrorMessage";
 import { supabase } from "../lib/supabaseClient";
+import {
+  checkAnkiConnection,
+  saveNoteToAnki,
+  type AnkiNote,
+} from "../lib/ankiBridge";
 
 type FlashcardPreviewProps = {
   isLoading: boolean;
   details: DictionaryResponse | null;
 };
+
+type Status = "idle" | "saving" | "success" | "error";
+
+type ToastStatus = "success" | "error";
 
 const FlashcardPreview: React.FC<FlashcardPreviewProps> = ({
   isLoading,
@@ -19,29 +28,43 @@ const FlashcardPreview: React.FC<FlashcardPreviewProps> = ({
   const [localDetails, setLocalDetails] = useState<DictionaryResponse | null>(
     null
   );
-  const [isSavingToDB, setIsSavingToDB] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
-  const [saveError, setSaveError] = useState<string | null>(null);
+  const [isAnkiConnected, setIsAnkiConnected] = useState<boolean | null>(null);
+
+  const [dbStatus, setDbStatus] = useState<Status>("idle");
+  const [ankiStatus, setAnkiStatus] = useState<Status>("idle");
+  const [toast, setToast] = useState<ToastStatus | null>(null);
 
   useEffect(() => {
     if (details) {
       setLocalDetails(details);
     }
+    setDbStatus("idle");
+    setAnkiStatus("idle");
+    setToast(null);
+    (async () => {
+      try {
+        await checkAnkiConnection();
+        setIsAnkiConnected(true);
+      } catch (error) {
+        setIsAnkiConnected(false);
+      }
+    })();
   }, [details]);
 
   const handleFlashcardSaveToDB = async () => {
     if (!localDetails) return;
 
-    setIsSavingToDB(true);
+    setDbStatus("saving");
     try {
-      const accessToken = (await supabase.auth.getSession()).data.session?.access_token;
+      const accessToken = (await supabase.auth.getSession()).data.session
+        ?.access_token;
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/flashcards/createFlashcard`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization" : `Bearer ${accessToken}`
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify({
             sentence: localDetails.sentence,
@@ -58,11 +81,37 @@ const FlashcardPreview: React.FC<FlashcardPreviewProps> = ({
         throw new Error("Failed to save flashcard");
       }
 
-      setSaveSuccess("Flashcard saved successfully!");
+      setDbStatus("success");
+      setToast("success");
     } catch (error) {
-      setSaveError("Failed to save flashcard");
-    } finally {
-      setIsSavingToDB(false);
+      setDbStatus("error");
+      setToast("error");
+    }
+  };
+
+  const handleFlashcardSaveToAnki = async () => {
+    if (!isAnkiConnected || !localDetails) return;
+
+    setAnkiStatus("saving");
+
+    const note: AnkiNote = {
+      deckName: "Default",
+      modelName: "Glossa",
+      fields: {
+        Word: localDetails?.targetWord,
+        Meaning: localDetails?.response.definition,
+        Sentence: localDetails?.sentence,
+        Reading: localDetails?.response.romanized,
+      },
+      tags: ["glossa"],
+    };
+    const { noteId } = await saveNoteToAnki(note);
+    if (noteId) {
+      setAnkiStatus("success");
+      setToast("success");
+    } else {
+      setAnkiStatus("error");
+      setToast("error");
     }
   };
 
@@ -77,6 +126,9 @@ const FlashcardPreview: React.FC<FlashcardPreviewProps> = ({
 
   if (!localDetails) return null;
 
+  const isDbDisabled = dbStatus === "saving" || dbStatus === "success";
+  const isAnkiDisabled = ankiStatus === "saving" || ankiStatus === "success";
+
   return (
     <div className="mt-2 p-2 border rounded bg-gray-50 relative">
       {isEditing && localDetails ? (
@@ -90,13 +142,15 @@ const FlashcardPreview: React.FC<FlashcardPreviewProps> = ({
         />
       ) : (
         <>
-          <button
-            onClick={() => setIsEditing(true)}
-            className="absolute top-2 right-2 p-1 text-gray-600 hover:text-black cursor-pointer"
-            aria-label="Edit"
-          >
-            <Pencil size={18} />
-          </button>
+          {!isDbDisabled && !isAnkiDisabled && (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="absolute top-2 right-2 p-1 text-gray-600 hover:text-black cursor-pointer"
+              aria-label="Edit"
+            >
+              <Pencil size={18} />
+            </button>
+          )}
           <div>
             <strong>Definition:</strong>{" "}
             <p>{localDetails.response.definition}</p>
@@ -105,26 +159,45 @@ const FlashcardPreview: React.FC<FlashcardPreviewProps> = ({
           </div>
           <button
             onClick={handleFlashcardSaveToDB}
-            className="mt-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
-            disabled={isSavingToDB}
+            disabled={dbStatus === "saving" || dbStatus === "success"}
+            className={[
+              "mt-2 px-3 py-1 rounded text-white",
+              isDbDisabled
+                ? "bg-blue-500 opacity-50 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600 cursor-pointer",
+            ].join(" ")}
           >
-            {isSavingToDB ? "Saving..." : "Save Flashcard"}
+            {dbStatus === "saving" ? "Saving..." : "Save Flashcard"}
           </button>
+          {isAnkiConnected && (
+            <button
+              onClick={handleFlashcardSaveToAnki}
+              className={[
+                "mt-2 px-3 py-1 rounded text-white",
+                isAnkiDisabled
+                  ? "bg-green-500 opacity-50 cursor-not-allowed"
+                  : "bg-green-500 hover:bg-green-600 cursor-pointer",
+              ].join(" ")}
+              disabled={ankiStatus === "saving" || ankiStatus === "success"}
+            >
+              {ankiStatus === "saving" ? "Saving..." : "Save to Anki"}
+            </button>
+          )}
         </>
       )}
 
-      {saveSuccess && (
+      {toast === "success" && (
         <SuccessMessage
-          message={saveSuccess}
-          onClose={() => setSaveSuccess(null)}
+          message={"Flashcard saved successfully!"}
+          onClose={() => setToast(null)}
           duration={3000}
         />
       )}
 
-      {saveError && (
+      {toast === "error" && (
         <ErrorMessage
-          message={saveError}
-          onClose={() => setSaveError(null)}
+          message={"Failed to save flashcard"}
+          onClose={() => setToast(null)}
           duration={3000}
         />
       )}
