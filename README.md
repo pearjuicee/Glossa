@@ -6,7 +6,7 @@ Language learning tool to make sentence mining easier and faster. Turn any sente
 
 ---
 
-## ✨ Features
+## Features
 
 * **Sentence → Flashcard**: Select a sentence, tokenize it (e.g., `Intl.Segmenter` / language‑specific segmenters), pick a word, and auto‑generate a definition using an LLM API (currently using DeepSeek API).
 * **Context‑aware definitions**: Definitions can consider the full sentence rather than a single token in isolation.
@@ -15,7 +15,7 @@ Language learning tool to make sentence mining easier and faster. Turn any sente
 * **Auth**: Supabase Auth for sign‑in.
 ---
 
-## 🧱 Tech Stack
+## Tech Stack
 
 * **Frontend**: React + TypeScript, Tailwind CSS
 * **Backend**: Express (Node), Prisma ORM, PostgreSQL
@@ -25,10 +25,10 @@ Language learning tool to make sentence mining easier and faster. Turn any sente
 
 ---
 
-## 💬 Notes
+## Notes
 
 This is an educational project created to practice full‑stack development and to help language learners build durable vocab through context‑aware flashcards and optional Anki sync.
 
-## 🧩 Setup
+## Setup
 Setup instructions (and maybe deployment) coming soon!
 
